@@ -1,6 +1,8 @@
 import requests
 import json
 
+
+
 def parseWaterData(collection, state):
     req = requests.request('GET', 'http://waterservices.usgs.gov/nwis/iv/?format=json,1.1&stateCd=' +  state + '&parameterCd=00060,00065&siteType=ST,SP')
     dictData = req.json()
@@ -28,5 +30,5 @@ for state in stateList:
 
 print allRivers
 
-with open('riverData.json', 'w') as outfile:
+with open('data/riverData.json', 'w') as outfile:
     json.dump(allRivers, outfile)
