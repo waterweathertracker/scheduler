@@ -1,5 +1,5 @@
 import requests
-import json, ast
+import json
 
 def parseWaterData(collection, state):
     req = requests.request('GET', 'http://waterservices.usgs.gov/nwis/iv/?format=json,1.1&stateCd=' +  state + '&parameterCd=00060,00065&siteType=ST,SP')
@@ -13,6 +13,8 @@ def parseWaterData(collection, state):
             riverData['longitude'] = loc[u'sourceInfo'][u'geoLocation'][ u'geogLocation'][u'longitude']
             riverData['value'] = float(loc[u'values'][0][u'value'][0][u'value'].encode('utf8'))
             riverData['dateTime'] = loc[u'values'][0][u'value'][0][u'dateTime'].encode('utf8')
+            riverData['stateId'] = loc[u'sourceInfo'][u'siteProperty'][2][u'value'].encode('utf8')
+            riverData['countyId'] = loc[u'sourceInfo'][u'siteProperty'][3][u'value'].encode('utf8')
             riverData['state'] = state.upper()
             riverData['type'] = loc[u'variable'][u'unit'][u'unitAbbreviation'].encode('utf8')
             collection.append(riverData)
