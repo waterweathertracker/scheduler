@@ -1,6 +1,7 @@
 from sqlalchemy import *
 import sqlalchemy.orm as orm
 import json
+from sqlalchemy.ext.declarative import declarative_base
 
 def byteify(input):
     if isinstance(input, dict):
@@ -22,37 +23,43 @@ with open('../data/fips_countyCd_detailed.json') as data_file:
 
 engine = create_engine("postgres://niallokane@localhost:5432/dev_waterweather")
 metadata = MetaData(bind=engine)
+Base = declarative_base()
 
-tableStates = Table('states', metadata, autoload=True)
-tableCounties = Table('counties', metadata, autoload=True)
+class State(Base):
+    __tablename__ = 'states'
 
-class Row(object):
-    pass
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
+    abbr = Column(String)
 
-rowmapper = orm.Mapper(Row,tableStates)
+    def __repr__(self):
+       return "<State(id='%s', name='%s', abbr='%s')>" % (
+                          self.id,  self.name, self.abbr)
+
+class County(Base):
+    __tablename__ = 'counties'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
+    state_id = Column(None, ForeignKey('states.id'), primary_key=True)
+
+    def __repr__(self):
+       return "<County(id='%s', name='%s', state_id='%s')>" % (
+                          self.id,  self.name, self.state_id)
+
+Base.metadata.create_all(engine)
 
 Sess = orm.sessionmaker(bind = engine)
 session = Sess()
 
 for state in stateData:
-    row1 = Row()
-    row1.id = int(state)
-    row1.name = stateData[state]['name']
-    row1.abbr = stateData[state]['abbreviation']
-    session.add(row1)
+    currentState = State(id=int(state), name=stateData[state]['name'], abbr=stateData[state]['abbreviation'])
+    session.merge(currentState)
 
 session.commit()
-orm.clear_mappers()
-rowmapper = orm.Mapper(Row, tableCounties)
-
-Sess = orm.sessionmaker(bind = engine)
-session = Sess()
 
 for county in countyData:
-    row1 = Row() 
-    row1.id = int(county)
-    row1.name = countyData[county]['county']
-    row1.state_id = int(countyData[county]['stateId'])
-    session.add(row1)
+    currentCounty = County(id=int(county), name=countyData[county]['county'], state_id=int(countyData[county]['stateId']))
+    session.merge(currentCounty)
 
 session.commit()
