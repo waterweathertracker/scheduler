@@ -41,13 +41,11 @@ class County(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String)
-    state_id = Column(None, ForeignKey('states.id'), primary_key=True)
+    state_id = Column(Integer, ForeignKey('states.id'), nullable=False)
 
     def __repr__(self):
        return "<County(id='%s', name='%s', state_id='%s')>" % (
                           self.id,  self.name, self.state_id)
-
-Base.metadata.create_all(engine)
 
 Sess = orm.sessionmaker(bind = engine)
 session = Sess()
