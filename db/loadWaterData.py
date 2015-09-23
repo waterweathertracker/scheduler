@@ -2,6 +2,7 @@ from sqlalchemy import *
 import sqlalchemy.orm as orm
 import json
 from sqlalchemy.ext.declarative import declarative_base
+from geoalchemy2 import Geometry
 
 def byteify(input):
     if isinstance(input, dict):
@@ -49,11 +50,12 @@ class WaterBody(Base):
 
     id = Column(BigInteger, primary_key=True)
     name = Column(String)
+    loc = Column(Geometry('POINT'))
     state_id = Column(Integer,ForeignKey('states.id'), primary_key=True)
     # county_id = Column(None, ForeignKey('counties.id'), primary_key=True)
     def __repr__(self):
-       return "<WaterBody(id='%s', name='%s', state_id='%s')>" % (
-                          self.id,  self.name, self.state_id)
+       return "<WaterBody(id='%s', name='%s', loc='%s', state_id='%s')>" % (
+                          self.id, self.name, self.loc, self.state_id)
 
 class WaterMeasurement(Base):
     __tablename__ = 'water_measurements'
@@ -71,7 +73,7 @@ session = Sess()
 
 for body in waterData:
     currentBody = WaterBody(id=int(body['id']), name=body['name'], \
-      state_id=int(body['stateId']))
+      loc='POINT('+str(body['longitude'])+' '+str(body['latitude'])+')', state_id=int(body['stateId']))
     session.merge(currentBody)
 
 session.commit()
