@@ -1,4 +1,5 @@
 from sqlalchemy import *
+from geoalchemy2 import Geometry
 
 engine = create_engine(
     "postgres://niallokane@localhost:5432/dev_waterweather",
@@ -23,6 +24,7 @@ counties_table = Table('counties', metadata,
 bodies_tables = Table('water_bodies', metadata,
     Column('id', BigInteger, primary_key=True),
     Column('name', String),
+    Column('loc', Geometry('POINT')),
     Column('state_id', Integer, ForeignKey('states.id'), nullable=False)
 )
 
