@@ -6,6 +6,7 @@ engine = create_engine(
 )
 
 metadata = MetaData()
+measurement_id_seq = Sequence('measurement_id_seq')
 
 states_table = Table('states', metadata,
     Column('id', Integer, primary_key=True),
@@ -20,16 +21,16 @@ counties_table = Table('counties', metadata,
 )
  
 bodies_tables = Table('water_bodies', metadata,
-    Column('id', Integer, primary_key=True),
+    Column('id', BigInteger, primary_key=True),
     Column('name', String),
-    Column('state_id', Integer, ForeignKey('states.id'), nullable=False),
-    Column('county_id', Integer, ForeignKey('counties.id'), nullable=False),
+    Column('state_id', Integer, ForeignKey('states.id'), nullable=False)
 )
 
 measurements_table = Table('water_measurements', metadata,
-    Column('id', Integer, primary_key=True),
+    Column('id', Integer, measurement_id_seq, server_default=measurement_id_seq.next_value(), primary_key=True),
     Column('value', Float),
-    Column('body_id', Integer, ForeignKey("water_bodies.id")),
+    Column('measured_at', DateTime),
+    Column('body_id', BigInteger, ForeignKey("water_bodies.id")),
 )
 
 # create tables in database
